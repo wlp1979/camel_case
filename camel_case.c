@@ -67,7 +67,6 @@ PHP_FUNCTION(camel_case)
 	register char *r, *r_end;
 	int str_len;
 	int sep_len=1;
-    bool uc_next = false;
 	zend_bool lc_first=0;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sb", &str, &str_len, &sep, &sep_len, &lc_first) == FAILURE) {
