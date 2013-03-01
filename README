@@ -1,0 +1,4 @@
+phpize
+./configure --enable-camel-case
+make
+make test
