@@ -29,45 +29,16 @@ zend_module_entry camel_case_module_entry = {
 ZEND_GET_MODULE(camel_case)
 #endif
 
-static void strip_sep(char *str, uint len, char from, zval *result) {
-	int char_count = 0;
-	int replaced = 0;
-	char *source, *target, *tmp, *source_end=str+len, *tmp_end = NULL;
-
-	for (source = str; source < source_end; source++) {
-		if (tolower(*source) == tolower(from)) {
-			char_count++;
-		}
-	}
-
-	Z_STRLEN_P(result) = len + (char_count * -1);
-	Z_STRVAL_P(result) = target = safe_emalloc(char_count, 0, len + 1);
-	Z_TYPE_P(result) = IS_STRING;
-
-	for (source = str; source < source_end; source++) {
-		if (tolower(*source) == tolower(from)) {
-			replaced = 1;
-			for (tmp = "", tmp_end = tmp; tmp < tmp_end; tmp++) {
-				*target = *tmp;
-				target++;
-			}
-		} else {
-			*target = *source;
-			target++;
-		}
-	}
-	*target = 0;
-}
-
-
 PHP_FUNCTION(camel_case)
 {
 	char *str;
 	char *sep="_";
-	register char *r, *r_end;
 	int str_len;
 	int sep_len=1;
+	int uc_next=1;
 	zend_bool lc_first=0;
+	int char_count = 0;
+	char *source, *target, *source_end;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sb", &str, &str_len, &sep, &sep_len, &lc_first) == FAILURE) {
         RETURN_NULL();
@@ -77,27 +48,33 @@ PHP_FUNCTION(camel_case)
 		RETURN_EMPTY_STRING();
 	}
 
-	ZVAL_STRINGL(return_value, str, str_len, 1);
-	r = Z_STRVAL_P(return_value);
-
 	if(lc_first) {
-		*r = tolower((unsigned char) *r);
+		uc_next = 0;
 	}
-	else {
-		*r = toupper((unsigned char) *r);
-	}
-	r++;
-	for (r_end = r + str_len - 1; r < r_end; ) {
-		if ((unsigned char) *r == *sep ) {
-			r++;
-			*r = toupper((unsigned char) *r);
-			r++;
-		}
-		else {
-			*r = tolower((unsigned char) *r);
-			r++;
+
+	source_end=str+str_len;
+	for (source = str; source < source_end; source++) {
+		if (tolower(*source) == tolower(*sep)) {
+			char_count++;
 		}
 	}
 
-	strip_sep(Z_STRVAL_P(return_value), Z_STRLEN_P(return_value), *sep, return_value);
+	Z_STRLEN_P(return_value) = str_len + (char_count * -1);
+	Z_STRVAL_P(return_value) = target = safe_emalloc(char_count, 0, str_len + 1);
+	Z_TYPE_P(return_value) = IS_STRING;
+
+	for (source = str; source < source_end; source++) {
+		if (tolower(*source) == tolower(*sep)) {
+			uc_next = 1;
+		} else {
+			if(uc_next) {
+				*target = toupper(*source);
+				uc_next = 0;
+			} else {
+				*target = tolower(*source);
+			}
+			target++;
+		}
+	}
+	*target = 0;
 }
