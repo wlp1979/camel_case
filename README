@@ -2,3 +2,4 @@ phpize
 ./configure --enable-camel-case
 make
 make test
+php -d extension="./modules/camel_case.so" compare.php
