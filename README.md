@@ -13,12 +13,14 @@ This is a PHP extension that provides a simple function to convert strings into 
 
 Installation
 ------------
-Build
+Build:
+
     phpize
     ./configure --enable-camel-case
     make
 
-Test
+Test:
+
     make test
     php -d extension="./modules/camel_case.so" compare.php
 
