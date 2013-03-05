@@ -1,5 +1,21 @@
+INSTALL
+
 phpize
 ./configure --enable-camel-case
 make
 make test
 php -d extension="./modules/camel_case.so" compare.php
+
+USAGE
+string camel_case(string $string, string $separator = '_', boolean $lowerCaseFirst = false);
+
+EXAMPLE
+
+echo camel_case("camel_case_me");
+CamelCaseMe
+
+echo camel_case("camel-case-me", '-');
+CamelCaseMe
+
+echo camel_case("camel_case_me", '_', true);
+camelCaseMe
