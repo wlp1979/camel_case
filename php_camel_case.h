@@ -4,6 +4,7 @@
 #define PHP_CAMEL_CASE_EXTNAME "camel_case"
 
 PHP_FUNCTION(camel_case);
+PHP_FUNCTION(uncamel_case);
 
 extern zend_module_entry camel_case_module_entry;
 #define phpext_camel_case_ptr &camel_case_module_entry

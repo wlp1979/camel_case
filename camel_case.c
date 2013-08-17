@@ -9,6 +9,7 @@
 
 zend_function_entry camel_case_functions[] = {
 	PHP_FE(camel_case, NULL)
+	PHP_FE(uncamel_case, NULL)
 	{NULL, NULL, NULL}
 };
 
@@ -60,7 +61,7 @@ PHP_FUNCTION(camel_case)
 	}
 
 	Z_STRLEN_P(return_value) = str_len + (char_count * -1);
-	Z_STRVAL_P(return_value) = target = safe_emalloc(char_count, 0, str_len + 1);
+	Z_STRVAL_P(return_value) = target = safe_emalloc(char_count, 0, str_len+1);
 	Z_TYPE_P(return_value) = IS_STRING;
 
 	for (source = str; source < source_end; source++) {
@@ -73,8 +74,50 @@ PHP_FUNCTION(camel_case)
 			} else {
 				*target = tolower(*source);
 			}
+
 			target++;
 		}
 	}
-	*target = 0;
+}
+
+PHP_FUNCTION(uncamel_case)
+{
+	char *str;
+	char *sep="_";
+	int str_len;
+	int sep_len=1;
+	int uc_next=1;
+	int char_count = 0;
+	char *source, *target, *source_end;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sb", &str, &str_len, &sep, &sep_len) == FAILURE) {
+        RETURN_NULL();
+    }
+
+	if (!str_len) {
+		RETURN_EMPTY_STRING();
+	}
+
+	source_end=str+str_len;
+	for (source = str + 1; source < source_end; source++) {
+		if (isupper(*source)) {
+			char_count++;
+		}
+	}
+
+	Z_STRLEN_P(return_value) = str_len + char_count;
+	Z_STRVAL_P(return_value) = target = safe_emalloc(char_count, 1, str_len+1);
+	Z_TYPE_P(return_value) = IS_STRING;
+
+	*target = tolower(*str);
+	target++;
+	for (source = str + 1; source < source_end; source++) {
+		if (isupper(*source)) {
+			*target = tolower(*sep);
+			target++;
+		}
+
+		*target = tolower(*source);
+		target++;
+	}
 }
